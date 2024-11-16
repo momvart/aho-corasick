@@ -141,7 +141,7 @@ impl<'a, T: private::Sealed + ?Sized> private::Sealed for &'a T {}
 /// // seen according to the automaton's match semantics. This returns an error
 /// // if the given automaton does not support unanchored searches.
 /// fn find<A: Automaton>(
-///     aut: A,
+///     aut: &A,
 ///     haystack: &[u8],
 /// ) -> Result<Option<Match>, MatchError> {
 ///     let mut sid = aut.start_state(Anchored::No)?;
@@ -355,7 +355,7 @@ pub unsafe trait Automaton: private::Sealed {
         &self,
         input: &Input<'_>,
     ) -> Result<Option<Match>, MatchError> {
-        try_find_fwd(&self, input)
+        try_find_fwd(self, input)
     }
 
     /// Executes a overlapping search with this automaton using the given
@@ -369,7 +369,7 @@ pub unsafe trait Automaton: private::Sealed {
         input: &Input<'_>,
         state: &mut OverlappingState,
     ) -> Result<(), MatchError> {
-        try_find_overlapping_fwd(&self, input, state)
+        try_find_overlapping_fwd(self, input, state)
     }
 
     /// Returns an iterator of non-overlapping matches with this automaton
@@ -1557,7 +1557,7 @@ fn get_match<A: Automaton + ?Sized>(
 /// overlapping is that of match and start states.)
 pub(crate) fn fmt_state_indicator<A: Automaton>(
     f: &mut core::fmt::Formatter<'_>,
-    aut: A,
+    aut: &A,
     id: StateID,
 ) -> core::fmt::Result {
     if aut.is_dead(id) {
